@@ -16,6 +16,26 @@ pipeline {
                 sh './jenkins/scripts/test.sh'
             }
         }
+
+        stage('Manual Approval') {
+            steps {
+                script {
+                    def userInput = input(
+                        id: 'approvalInput',
+                        message: 'Lanjutkan ke tahap Deploy?',
+                        parameters: [choice(name: 'ACTION', choices: 'Proceed\nAbort', description: 'Pilih tindakan')],
+                        submitter: 'user'
+                    )
+
+                    if (userInput == 'Proceed') {
+                        echo "Pengguna memilih untuk melanjutkan."
+                    } else {
+                        error("Pengguna membatalkan eksekusi pipeline.")
+                    }
+                }
+            }
+        }
+        
         stage('Deploy') { 
             steps {
                 sh './jenkins/scripts/deliver.sh' 
